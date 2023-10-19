@@ -1,8 +1,5 @@
--- Obtém o diretório atual do script em execução
-local script_directory = debug.getinfo(1, "S").source:match("@(.*[\\/])")
-
--- Define a variável package.path para incluir o diretório atual
-package.path = script_directory .. "?.lua;" .. package.path
+-- mude esse comentario de acordo com suas necessidades
+-- package.path = package.path .. debug.getinfo(1, "S").source:match("@(.*[\\/])") .. "?.lua;"
     
 JSON = require("json")
 util = require("luatils")
