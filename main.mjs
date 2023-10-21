@@ -1,8 +1,7 @@
-import { LuaSession, LuaSessionManager, tolua, fromlua } from './lua-interop.mjs';
+import { LuaSession, tolua, fromlua } from './lua-interop.mjs';
 
-const luam = new LuaSessionManager('luajit/bin/mingw64/luajit.exe', 'init.lua',4);
-const lua = new LuaSession('luajit/bin/mingw64/luajit.exe');
-
+const lua0 = new LuaSession('luajit/bin/mingw64/luajit.exe');
+const lua1 = new LuaSession('luajit/bin/mingw64/luajit.exe');
 const complexTestObject = {
     a: 1,
     b: 2,
@@ -10,31 +9,31 @@ const complexTestObject = {
 };
 
 const luaOperations = [
-    luam.json(tolua({ data: "Operation 1" })),
-    luam.eval('text("Operation 2 - luam.eval")'),
-    luam.text('Operation 3 - luam.text'),
-    luam.eval('text("Operation 4 - luam.eval")'),
-    luam.text('Operation 5 - luam.text'),
-    luam.json(tolua({ data: "Operation 6" })),
-    luam.json(tolua({ data: "Operation 7" })),
-    luam.json(tolua({ data: "Operation 8" })),
-    luam.json(tolua({ data: "Operation 9" })),
-    luam.json(tolua({ data: "Operation 10" })),
-    luam.json(tolua({ data: "Operation 11" })),
-    luam.json(tolua({ data: "Operation 12" })),
-    luam.json(tolua({ data: "Operation 13" })),
-    luam.json(tolua({ data: "Operation 14" })),
-    luam.json(tolua({ data: "Operation 15" })),
-    luam.eval('text("Operation 16 - luam.eval")'),
-    luam.eval('text("Operation 17 - luam.eval")'),
-    luam.text('Operation 18 - luam.text'),
-    luam.eval('text("Operation 19 - luam.eval")'),
-    luam.text('Operation 20 - luam.text'),
-    luam.json(tolua({ data: "Operation 21" })),
-    luam.json(tolua({ data: "Operation 22" })),
-    luam.json(tolua({ data: "Operation 23" })),
-    luam.json(tolua({ data: "Operation 24" })),
-    luam.json(tolua({ data: "Operation 25" })),
+    lua0.json(tolua({ data: "Operation 1" })),
+    lua1.eval('text("Operation 2 - lua0.eval")'),
+    lua0.text('Operation 3 - lua0.text'),
+    lua1.eval('text("Operation 4 - lua0.eval")'),
+    lua0.text('Operation 5 - lua0.text'),
+    lua1.json(tolua({ data: "Operation 6" })),
+    lua0.json(tolua({ data: "Operation 7" })),
+    lua1.json(tolua({ data: "Operation 8" })),
+    lua0.json(tolua({ data: "Operation 9" })),
+    lua1.json(tolua({ data: "Operation 10" })),
+    lua0.json(tolua({ data: "Operation 11" })),
+    lua1.json(tolua({ data: "Operation 12" })),
+    lua0.json(tolua({ data: "Operation 13" })),
+    lua1.json(tolua({ data: "Operation 14" })),
+    lua0.json(tolua({ data: "Operation 15" })),
+    lua1.eval('text("Operation 16 - lua0.eval")'),
+    lua0.eval('text("Operation 17 - lua0.eval")'),
+    lua1.text('Operation 18 - lua0.text'),
+    lua0.eval('text("Operation 19 - lua0.eval")'),
+    lua1.text('Operation 20 - lua0.text'),
+    lua0.json(tolua({ data: "Operation 21" })),
+    lua1.json(tolua({ data: "Operation 22" })),
+    lua0.json(tolua({ data: "Operation 23" })),
+    lua1.json(tolua({ data: "Operation 24" })),
+    lua0.json(tolua({ data: "Operation 25" })),
 ];
 let luaResults = [];
 // Execute as operações em um loop
@@ -48,5 +47,5 @@ const allResults = await Promise.all(luaResults);
 
 console.log(allResults);
 
-lua.close();
-luam.close();
+lua0.close();
+lua1.close();
