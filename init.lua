@@ -2,7 +2,7 @@
 -- package.path = package.path .. debug.getinfo(1, "S").source:match("@(.*[\\/])") .. "?.lua;"
     
 JSON = require("json")
-util = require("luatils")
+util = require("luatils.init")
 
 
 _print = print -- faz um backup da função print original
