@@ -10,8 +10,27 @@ export function fromlua(data)
     return (`JSON.stringify(${data})`);
 };
 
+function advanceQueue(session)
+{
+    if (session.queue.length > 0) 
+    {
+        let currenttask = session.queue.shift();
+        if (currenttask.timeout) 
+        {
+            session.task = session.eval(currenttask.command, currenttask.timeout);
+            currenttask.resolve(session.task);
+        }
+        else
+        {
+            session.task = session.eval(currenttask.command);
+            currenttask.resolve(session.task);
+        }
+    }
+}
+
 export class LuaSession 
 {
+    _callback = {};
     task = null;
     busy = false;
     timeout = null;
@@ -36,22 +55,9 @@ export class LuaSession
         });
     }
 
-    async advanceQueue()
+    registerCallback(name, callback)
     {
-        if (this.queue.length > 0) 
-        {
-            let currenttask = this.queue.shift();
-            if (currenttask.timeout) 
-            {
-                this.task = this.eval(currenttask.command, currenttask.timeout);
-                currenttask.resolve(this.task);
-            }
-            else
-            {
-                this.task = this.eval(currenttask.command);
-                currenttask.resolve(this.task);
-            }
-        }
+        this._callback[name] = callback;
     }
 
     async eval(command, timeout) 
@@ -96,7 +102,7 @@ export class LuaSession
                             this.timeout = null;
                         }
                         resolve(JSON.parse(str));
-                        this.advanceQueue();
+                        advanceQueue(this);
                     } 
                     catch (error) 
                     {
@@ -108,7 +114,7 @@ export class LuaSession
                             this.timeout = null;
                         }
                         reject(error);
-                        this.advanceQueue();
+                        advanceQueue(this);
                     }
                 }
                 else if(str[0] == '?')
@@ -125,7 +131,7 @@ export class LuaSession
                             this.timeout = null;
                         }
                         resolve(str);
-                        this.advanceQueue();
+                        advanceQueue(this);
                     }
                     catch (error)
                     {
@@ -137,7 +143,40 @@ export class LuaSession
                             this.timeout = null;
                         }
                         reject(error);
-                        this.advanceQueue();
+                        advanceQueue(this);
+                    }
+                }
+                else if(str[0] == '<')
+                {
+                    this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
+                    try 
+                    {
+                        str = str.substring(1, str.length - 1);
+                        str = str.split('>');
+                        let funcname = str[0];
+                        let args = str[1][0] == '{' ? JSON.parse(str[1]) : str[1];
+                        this.busy = false;
+                        this.task = null;
+                        if (this.timeout) 
+                        {
+                            clearTimeout(this.timeout);
+                            this.timeout = null;
+                        }
+                        //console.log(`Calling callback ${funcname} with args ${args}`);
+                        resolve(this._callback[funcname](args ?? null) ?? 'returned nothing');
+                        advanceQueue(this);
+                    } 
+                    catch (error) 
+                    {
+                        this.busy = null;
+                        this.task = null;
+                        if (this.timeout) 
+                        {
+                            clearTimeout(this.timeout);
+                            this.timeout = null;
+                        }
+                        reject(error);
+                        advanceQueue(this);
                     }
                 }
 
@@ -165,6 +204,10 @@ export class LuaSession
     log = async (data) =>
     {
         return this.eval(`log('${data}')`);
+    }
+    call = async (funcname, args) =>
+    {
+        return this.eval(`call('${funcname}','${args}')`);
     }
     close = () => 
     {

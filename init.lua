@@ -2,6 +2,11 @@
 -- package.path = package.path .. debug.getinfo(1, "S").source:match("@(.*[\\/])") .. "?.lua;"
     
 JSON = require("json")
+_print = print -- faz um backup da função print original
+
+----------------------------------------------
+-- funções para manipular arquivos de texto --
+----------------------------------------------
 
 local loadtext = function(path) -- settar local garante que a função não será acessada de fora do arquivo
     local file = io.open(path, "r")
@@ -16,9 +21,11 @@ local savetext = function(path, text) -- settar local garante que a função nã
     file:close()
 end
 
-_print = print -- faz um backup da função print original
-
 savetext('luaside_log.txt', '') -- limpa o arquivo de log
+
+----------------------------------------------
+-- funções para enviar dados para o cliente --
+----------------------------------------------
 
 function json(data) -- função para enviar json para o lado do cliente
     _print('!' .. JSON.stringify(data))
@@ -29,7 +36,7 @@ function text(data) -- função para enviar texto para o lado do cliente
     _print('?' .. data)
     io.flush();
 end
-print = text; -- substitui a função print original pela função say
+-- print = text; -- substitui a função print original pela função say
 
 function log(data,filename) -- função para salvar dados no arquivo de log
     filename = filename or 'luaside_log.txt'
@@ -37,7 +44,16 @@ function log(data,filename) -- função para salvar dados no arquivo de log
     savetext(filename, file .. '\n' .. data)
 end
 
--- Função para executar comandos Lua
+function call(funcname,args) -- função para chamar funções do lado do cliente
+    args = type(args) == 'table' and JSON.stringify(args) or (args or 'error')
+    _print('<' .. funcname .. '>' .. args)
+    io.flush()
+end
+
+----------------------------------------------
+--  função para executar código da string   --
+---------------------------------------------- 
+
 function executeLuaCode(code)
     log("executing: " .. code)
     local chunk, err = load(code)
@@ -53,7 +69,10 @@ function executeLuaCode(code)
     end
 end
 
--- Loop principal
+----------------------------------------------
+--             loop principal               --
+----------------------------------------------
+
 while true do
     local command = io.read()
     local result = executeLuaCode(command or 'os.exit()')

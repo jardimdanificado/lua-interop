@@ -2,6 +2,13 @@ import { LuaSession, tolua, fromlua } from './lua-interop.mjs';
 
 const lua0 = new LuaSession('luajit/bin/mingw64/luajit.exe');
 const lua1 = new LuaSession('luajit/bin/mingw64/luajit.exe');
+
+lua0.registerCallback('test', (data) =>
+{
+    console.log(`Lua0: ${data}`);
+    return data;
+});
+
 const complexTestObject = {
     a: 1,
     b: 2,
@@ -9,6 +16,7 @@ const complexTestObject = {
 };
 
 const luaOperations = [
+    lua0.call('test', 'Hello from lua0.call'),
     lua0.json(tolua({ data: "Operation 1" })),
     lua1.eval('text("Operation 2 - lua0.eval")'),
     lua0.text('Operation 3 - lua0.text'),
