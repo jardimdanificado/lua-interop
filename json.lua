@@ -22,7 +22,7 @@
 -- SOFTWARE.
 --
 
--- fork da versão oficial 0.1.2 por rxi
+-- fork da versão oficial 0.1.2
 local JSON = { _version = "0.1.3" }
 
 -------------------------------------------------------------------------------
