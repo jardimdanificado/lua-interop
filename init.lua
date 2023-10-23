@@ -2,12 +2,23 @@
 -- package.path = package.path .. debug.getinfo(1, "S").source:match("@(.*[\\/])") .. "?.lua;"
     
 JSON = require("json")
-util = require("luatils.init")
 
+local loadtext = function(path) -- settar local garante que a função não será acessada de fora do arquivo
+    local file = io.open(path, "r")
+    local contents = file:read("*all")
+    file:close()
+    return contents
+end
+
+local savetext = function(path, text) -- settar local garante que a função não será acessada de fora do arquivo
+    local file = io.open(path, "w")
+    file:write(text)
+    file:close()
+end
 
 _print = print -- faz um backup da função print original
 
-util.file.save.text('luaside_log.txt', '') -- limpa o arquivo de log
+savetext('luaside_log.txt', '') -- limpa o arquivo de log
 
 function json(data) -- função para enviar json para o lado do cliente
     _print('!' .. JSON.stringify(data))
@@ -22,8 +33,8 @@ print = text; -- substitui a função print original pela função say
 
 function log(data,filename) -- função para salvar dados no arquivo de log
     filename = filename or 'luaside_log.txt'
-    local file = util.file.load.text(filename);
-    util.file.save.text(filename, file .. '\n' .. data)
+    local file = loadtext(filename);
+    savetext(filename, file .. '\n' .. data)
 end
 
 -- Função para executar comandos Lua
