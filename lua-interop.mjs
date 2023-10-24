@@ -88,6 +88,13 @@ export class LuaSession
             const onDataHandler = (data) => 
             {
                 let str = data.toString();
+                //console.log(str);
+                if (str.includes('\r\n')) 
+                {
+                    let splitted = str.split('\n');
+                    str = splitted[splitted.length - 1] == '' ? splitted[splitted.length - 2] : splitted[splitted.length - 1];
+                }
+                
                 if(str[0] == '!')
                 {
                     this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
@@ -148,11 +155,20 @@ export class LuaSession
                 }
                 else if(str[0] == '<')
                 {
+                    //this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
+                    str = str.substring(1, str.length - 1);
+                    str = str.split('>');
+                    let funcname = str[0];
+                    let args = str[1][0] == '{' ? JSON.parse(str[1]) : str[1];
+                    this._callback[funcname](args ?? null)
+                }
+                else if(str[0] == '>')
+                {
                     this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
                     try 
                     {
                         str = str.substring(1, str.length - 1);
-                        str = str.split('>');
+                        str = str.split('<');
                         let funcname = str[0];
                         let args = str[1][0] == '{' ? JSON.parse(str[1]) : str[1];
                         this.busy = false;
@@ -204,10 +220,6 @@ export class LuaSession
     log = async (data) =>
     {
         return this.eval(`log('${data}')`);
-    }
-    call = async (funcname, args) =>
-    {
-        return this.eval(`call('${funcname}','${args}')`);
     }
     close = () => 
     {

@@ -3,11 +3,16 @@ import { LuaSession, tolua, fromlua } from './lua-interop.mjs';
 const lua0 = new LuaSession('luajit/bin/mingw64/luajit.exe');
 const lua1 = new LuaSession('luajit/bin/mingw64/luajit.exe');
 
-lua0.registerCallback('test', (data) =>
+lua0.registerCallback('exampleprinter', (data) =>
 {
     console.log(`Lua0: ${data}`);
+});
+
+lua0.registerCallback('simpleprint', (data) =>
+{
     return data;
 });
+
 
 const complexTestObject = {
     a: 1,
@@ -15,9 +20,17 @@ const complexTestObject = {
     c: { a: 2, b: [1, 2, 3, 4, 5] }
 };
 
+let teste = lua0.eval(`call('exampleprinter', 'A CALL DOESNT RETURN ANYTHING, JUST CALLS THE FUNCTION')
+--call('exampleprinter', 'DO NOT USE AWAIT ON CALLS, OTHERWISE IT WILL FREEZE THE PROGRAM')
+call('exampleprinter', 'USE CALLS WISELY')
+call('exampleprinter', 'a ENDCALL RETURNS THE VALUE OF THE FUNCTION AND RESOLVE IT, IF A CALL CONTAINS A ENDCALL THEN IT RETURN AND RESOLVE A VALUE, SO YOU CAN SAFELY AWAIT IT');
+endcall('simpleprint', 'this is the endcall result');
+`);
+
+console.log('ENDCALL PROMISE RESULT: ' + await teste)
+
 const luaOperations = [
-    lua0.call('test', 'Hello from lua0.call'),
-    lua0.json(tolua({ data: "Operation 1" })),
+    lua0.json(tolua(complexTestObject)),
     lua1.eval('text("Operation 2 - lua0.eval")'),
     lua0.text('Operation 3 - lua0.text'),
     lua1.eval('text("Operation 4 - lua0.eval")'),

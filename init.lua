@@ -50,6 +50,12 @@ function call(funcname,args) -- função para chamar funções do lado do client
     io.flush()
 end
 
+function endcall(funcname,args) -- função para retornar valores para o lado do cliente usando call
+    args = type(args) == 'table' and JSON.stringify(args) or (args or 'error')
+    _print('>' .. funcname .. '<' .. args)
+    io.flush()
+end
+
 ----------------------------------------------
 --  função para executar código da string   --
 ---------------------------------------------- 
