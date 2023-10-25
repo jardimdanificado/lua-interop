@@ -36,7 +36,6 @@ function text(data) -- função para enviar texto para o lado do cliente
     _print('?' .. data)
     io.flush();
 end
--- print = text; -- substitui a função print original pela função say
 
 function log(data,filename) -- função para salvar dados no arquivo de log
     filename = filename or 'luaside_log.txt'
@@ -44,15 +43,12 @@ function log(data,filename) -- função para salvar dados no arquivo de log
     savetext(filename, file .. '\n' .. data)
 end
 
-function call(funcname,args) -- função para chamar funções do lado do cliente
-    args = type(args) == 'table' and JSON.stringify(args) or (args or 'error')
-    _print('<' .. funcname .. '>' .. args)
-    io.flush()
-end
-
-function endcall(funcname,args) -- função para retornar valores para o lado do cliente usando call
-    args = type(args) == 'table' and JSON.stringify(args) or (args or 'error')
-    _print('>' .. funcname .. '<' .. args)
+function call(funcname,data) -- função para chamar funções do lado do cliente
+    if data:sub(1,1) == '[' or data:sub(1,1) == '{' then
+        _print('$' .. funcname .. '$#' .. JSON.stringify(data))
+    else
+        _print('$' .. funcname .. '$#' .. data)
+    end
     io.flush()
 end
 

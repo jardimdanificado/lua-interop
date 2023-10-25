@@ -31,6 +31,7 @@ function advanceQueue(session)
 export class LuaSession 
 {
     _callback = {};
+    default_timeout = null;
     task = null;
     busy = false;
     timeout = null;
@@ -55,6 +56,11 @@ export class LuaSession
         });
     }
 
+    setDefaultTimeout(timeout)
+    {
+        this.default_timeout = timeout;
+    }
+
     registerCallback(name, callback)
     {
         this._callback[name] = callback;
@@ -62,6 +68,7 @@ export class LuaSession
 
     async eval(command, timeout) 
     {
+        timeout = timeout ?? this.default_timeout ?? null;
         if (this.busy) 
         {
             if (timeout) 
@@ -84,17 +91,9 @@ export class LuaSession
         this.task = new Promise((resolve, reject) => 
         {
             this.childprocess.stdin.write(command + '\n');
-
             const onDataHandler = (data) => 
             {
                 let str = data.toString();
-                //console.log(str);
-                if (str.includes('\r\n')) 
-                {
-                    let splitted = str.split('\n');
-                    str = splitted[splitted.length - 1] == '' ? splitted[splitted.length - 2] : splitted[splitted.length - 1];
-                }
-                
                 if(str[0] == '!')
                 {
                     this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
@@ -153,24 +152,15 @@ export class LuaSession
                         advanceQueue(this);
                     }
                 }
-                else if(str[0] == '<')
-                {
-                    //this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
-                    str = str.substring(1, str.length - 1);
-                    str = str.split('>');
-                    let funcname = str[0];
-                    let args = str[1][0] == '{' ? JSON.parse(str[1]) : str[1];
-                    this._callback[funcname](args ?? null)
-                }
-                else if(str[0] == '>')
+                else if(str[0] == '$')
                 {
                     this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
-                    try 
+                    try
                     {
                         str = str.substring(1, str.length - 1);
-                        str = str.split('<');
-                        let funcname = str[0];
-                        let args = str[1][0] == '{' ? JSON.parse(str[1]) : str[1];
+                        let splited = str.split('$#');
+                        let name = splited[0];
+                        let _data = splited[1][0] == '{' || splited[1][0] == '[' ? JSON.parse(splited[1]) : splited[1];
                         this.busy = false;
                         this.task = null;
                         if (this.timeout) 
@@ -178,11 +168,13 @@ export class LuaSession
                             clearTimeout(this.timeout);
                             this.timeout = null;
                         }
-                        //console.log(`Calling callback ${funcname} with args ${args}`);
-                        resolve(this._callback[funcname](args ?? null) ?? 'returned nothing');
+                        if(this._callback[name])
+                            resolve(this._callback[name](_data));
+                        else
+                            resolve('function not found.');
                         advanceQueue(this);
-                    } 
-                    catch (error) 
+                    }
+                    catch (error)
                     {
                         this.busy = null;
                         this.task = null;
@@ -200,7 +192,8 @@ export class LuaSession
                 {
                     this.timeout = setTimeout(() =>
                     {
-                        reject('Timeout');
+                        this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
+                        resolve('Timed out');
                     }, timeout);
                 }
             };
@@ -209,17 +202,38 @@ export class LuaSession
         return this.task;
     }
 
-    json = async (data) => 
+
+    json = async (data,timeout) => 
     {
-        return this.eval(`json(${data})`);
+        return this.eval(`json(${data})`,timeout);
     }
-    text = async (data) =>
+    text = async (data,timeout) =>
     {
-        return this.eval(`text('${data}')`);
+        return this.eval(`text('${data}')`,timeout);
     }
-    log = async (data) =>
+    log = async (data,timeout) =>
     {
-        return this.eval(`log('${data}')`);
+        return this.eval(`log('${data}')`,timeout);
+    }
+    call = async (data,timeout) =>
+    {
+        let splitted = data.split('\n');
+        for(const i in splitted)
+        {
+            if (splitted[i] == '') 
+            {
+                splitted.splice(i, 1);
+            }
+        }
+        if(splitted[0] == '')
+            splitted.splice(0,1);
+        if(splitted[splitted.length-1] == '')
+            splitted.splice(splitted.length-1,1);
+        for(let i = 0; i < splitted.length-1; i++)
+        {
+            this.eval(splitted[i],timeout);
+        }
+        return this.eval(splitted[splitted.length-1],timeout);
     }
     close = () => 
     {

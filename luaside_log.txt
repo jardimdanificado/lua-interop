@@ -1,7 +1,0 @@
-
-executing: text("Operation 17 - lua0.eval")
-executing: text('Operation 18 - lua0.text')
-executing: text('Operation 20 - lua0.text')ion 21"}'))
-executing: json(JSON.parse('{"data":"Operation 23"}'))
-executing: json(JSON.parse('{"data":"Operation 25"}'))
-executing: os.exit()
