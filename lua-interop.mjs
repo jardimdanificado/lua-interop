@@ -205,14 +205,35 @@ export class LuaSession
 
     json = async (data,timeout) => 
     {
+        for(let i = 0; i < data.length; i++)
+        {
+            if(data[i] == '\n')
+            {
+                data = data.substring(0, i) + '\\n' + data.substring(i+1);
+            }
+        }
         return this.eval(`json(${data})`,timeout);
     }
     text = async (data,timeout) =>
     {
+        for(let i = 0; i < data.length; i++)
+        {
+            if(data[i] == '\n')
+            {
+                data = data.substring(0, i) + '\\n' + data.substring(i+1);
+            }
+        }
         return this.eval(`text('${data}')`,timeout);
     }
     log = async (data,timeout) =>
     {
+        for(let i = 0; i < data.length; i++)
+        {
+            if(data[i] == '\n')
+            {
+                data = data.substring(0, i) + '\\n' + data.substring(i+1);
+            }
+        }
         return this.eval(`log('${data}')`,timeout);
     }
     call = async (data,timeout) =>
