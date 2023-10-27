@@ -47,12 +47,12 @@ export class PipeSession
 
         this.childprocess.stderr.on('data', (data) => 
         {
-            console.error(`Lua Error: ${data.toString()}`);
+            console.error(`Error: ${data.toString()}`);
         });
 
         this.childprocess.on('exit', (code) => 
         {
-            console.log(`Lua process exited with code ${code}`);
+            console.log(`process exited with code ${code}`);
         });
     }
 
