@@ -3,58 +3,54 @@
 ### Importing the Library
 
 ```javascript
-import { LuaSession, fromlua, tolua } from 'lua-interop';
+import { PipeSession } from 'potpiper';
 ```
 
-### Initializing a Lua Session
+### Initializing a Session
 
-To start a Lua session, you can create an instance of `LuaSession`:
+To start a session, you can create an instance of `PipeSession`:
 
 ```javascript
-const lua = new LuaSession(luaPath, luaEntryPoint);
+const session = new PipeSession(execPath, args);
 ```
 
-- `luaPath` (optional): The path to the LuaJIT executable (default is 'luajit').
-- `luaEntryPoint` (optional): The path to the Lua client script (default is 'init.lua').
+- `execPath`: The path to the executable (default is 'luajit').
+- `args` : Arguments (default is 'init.lua').
 
 ### Sending Commands
 
-You can send Lua commands to the LuaJIT process and receive the results using the `eval` method:
+You can send commands to the process and receive the results using the `eval` method:
 
 ```javascript
-const result = await lua.eval("your_lua_code_here");
+const result = await session.eval("your_code_here");
 ```
 
 ### Sending Data
 
-You can use the `json`, `text`, and `log` functions to send data to the Lua process:
+You can use the `json`, `text`, and `log` wrappers to send data to the process:
 
 ```javascript
-await lua.json({ key: 'value' });
-await lua.text("This is a message");
-await lua.log("This is a log entry");
-```
-
-### Receiving Results
-
-The results returned from the LuaJIT process can be in JSON format, and you can use the `fromlua` and `tolua` functions to convert between JavaScript objects and Lua tables.
+await session.json({ key: 'value' });
+await session.text("This is a message");
+await session.log("This is a log entry");
+``` 
 
 ### Closing the Session
 
-Don't forget to close the Lua session when you're done:
+Don't forget to close the session when you're done:
 
 ```javascript
-lua.close();
+session.close();
 ```
 
 ## Example
 
-Here's a simple example of how to use `lua-interop`:
+Here's a simple example of how to use `potpiper` with lua:
 
 ```javascript
-import { LuaSession, fromlua } from 'lua-interop';
+import { PipeSession, fromlua } from 'potpiper';
 
-const lua = new LuaSession();
+const lua = new PipeSession('luajit');
 
 (async () => {
   const result = await lua.eval('return { message = "Hello from Lua!" }');
@@ -78,5 +74,4 @@ By using this software, you agree to comply with the terms of the GNU General Pu
 ## Acknowledgments
 
 - [LuaJIT](https://luajit.org/): The Lua Just-In-Time Compiler used in this project.
-- [luatils](https://github.com/jardimdanificado/luatils): The utils lib used in this project.
 - [json.lua](https://github.com/rxi/json.lua): The JSON lib used in this project.

@@ -1,7 +1,7 @@
-import { LuaSession, tolua, fromlua } from './lua-interop.mjs';
+import { PipeSession, tolua, fromlua } from '../potpiper.mjs';
 
-const lua0 = new LuaSession('luajit');
-const lua1 = new LuaSession('luajit');
+const lua0 = new PipeSession('luajit');
+const lua1 = new PipeSession('luajit');
 
 lua0.setDefaultTimeout(1000);
 

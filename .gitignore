@@ -1,2 +1,3 @@
 luajit
-luaside_log.txt
+examples/luaside_log.txt
+*.exe
