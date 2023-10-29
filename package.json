@@ -1,0 +1,19 @@
+{
+    "name": "potpiper",
+    "version": "0.2.23",
+    "description": "promise based interoperability for nodejs, works with anything that supports stdin and stdout.",
+    "main": "potpiper.mjs",
+    "keywords": 
+    [
+      "interoperability",
+      "child_process",
+      "pipe"
+    ],
+    "author": "jardimdanificado",
+    "license": "LGPL-3.0-or-later",
+    "repository": 
+    {
+      "type": "git",
+      "url": "https://github.com/jardimdanificado/potpiper.git"
+    }
+  }
