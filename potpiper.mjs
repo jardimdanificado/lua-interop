@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 
 export function tolua(data) 
 {
@@ -36,10 +37,39 @@ export class PipeSession
     busy = false;
     timeout = null;
     queue = [];
-    constructor(executablePath = 'luajit',args = ['init.lua']) 
+    constructor(executablePath = 'luajit',args = ['__init.lua']) 
     {
-        this.childprocess = spawn(executablePath, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+        if (args[0].includes('__init') ) 
+        {
+            if(existsSync('node_modules/potpiper'))
+            {
+                console.log('using npm potpiper')
+                args[0] = 'node_modules/potpiper/init/' + args[0]
+            }
+            else if(existsSync('init'))
+            {
+                console.log('using local potpiper')
+                args[0] = 'init/' + args[0]
+            }
+            else if(existsSync('__init.lua')) 
+            {
+                
+            }
+            else
+            {
+                console.log('malformed request. the __init repl file was not found, try moving the entrypoint to the same folder as node_modules, potpipe.mjs, init or __init')
+                console.log('if persists try reinstaling with npm or download it from github')
+                process.exit()
+            }
+        }
+        else
+        {
+            console.log('malformed request. the repl file was not found.')
+            process.exit()
+        }
 
+        this.childprocess = spawn(executablePath, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+        
         this.childprocess.stdout.on('data', (data) => 
         {
             //console.log(`Lua Output: ${data.toString()}`);
