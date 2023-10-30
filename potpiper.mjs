@@ -62,7 +62,7 @@ export class PipeSession
                 process.exit()
             }
         }
-        else
+        else if(!existsSync(args[0]))
         {
             console.log('malformed request. the repl file was not found.')
             process.exit()
