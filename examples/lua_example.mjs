@@ -16,8 +16,6 @@ function executeLuaCode(code)
     end
 end
 
-print('ready') -- this is a signal to the nodejs side that the lua side is ready to receive commands
-
 while true do
     
     local command = io.read()
@@ -36,24 +34,21 @@ const lua0 = new PipeSession('luajit',['lua_repl.lua']);
 const lua1 = new PipeSession('luajit',['lua_repl.lua']);
 
 lua0.setDefaultTimeout(1000);
+lua1.setDefaultTimeout(1000);
 
-let teste = lua0.call(`
--- in a call the string is read
-print('exampleprinter', 'just a call')
-print('exampleprinter', 'just a call')
-
-print('exampleprinter', 'just a call')
-
-print('done') -- in a call the last command must be a print to signal the nodejs side that the call is done
-
+//in a pass the string is read line by line
+let teste = lua0.pass(`
+print('just a pass')
+print('just a pass')
+print('just a pass')
+print('')
+print('done') -- in a pass the last command must be a print to signal the nodejs side that the pass is done
 
 `,1000);
 
-await lua0.send(lua_repl);
-await lua1.send(lua_repl);
+console.log(await lua0.send('abuble()')) // just to test the error handling
 
 let luaResults = [ lua1.send('print("hello world")'), lua0.send('print("hello world")'), teste];
-
 
 
 const main = async ()=>

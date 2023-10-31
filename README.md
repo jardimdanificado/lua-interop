@@ -1,5 +1,7 @@
 ## Usage
 
+You MUST print anything in the end of the called command, else it will freeze the process.
+
 ### Importing the Library
 
 ```javascript
@@ -22,7 +24,14 @@ const session = new PipeSession(execPath, args);
 You can send commands to the process and receive the results using the `send` method:
 
 ```javascript
-const result = await session.send("your_code_here");
+const result = await session.send("your message here");
+```
+
+You can also use the `pass` method, it ignores all prints, it only returns the last one:
+
+```javascript
+//only the result of "line three" will be returned
+const result = await session.pass("line one\n line two\n line three");
 ```
 
 ### Closing the Session
@@ -43,11 +52,13 @@ import { PipeSession } from 'potpiper';
 const lua = new PipeSession('luajit');
 
 (async () => {
-  const result = await lua.send('print("this is a test")');
+  const result = await lua.send('your message here');
   console.log(result);
   lua.close();
 })();
 ```
+
+Also check examples/
 
 ## License
 
@@ -59,8 +70,3 @@ This project is licensed under the [GNU General Public License version 3 (GPL-3.
 - You should have received a copy of the GNU General Public License along with this program. If not, see [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).
 
 By using this software, you agree to comply with the terms of the GNU General Public License version 3.
-
-## Acknowledgments
-
-- [LuaJIT](https://luajit.org/): The Lua Just-In-Time Compiler used in this project.
-- [json.lua](https://github.com/rxi/json.lua): The JSON lib used in this project.

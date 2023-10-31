@@ -1,6 +1,6 @@
 {
     "name": "potpiper",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "description": "promise based interoperability for nodejs, works with anything that supports stdin and stdout.",
     "main": "potpiper.mjs",
     "module": "potpiper.mjs",

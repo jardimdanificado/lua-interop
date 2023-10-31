@@ -28,16 +28,24 @@ export class PipeSession
     constructor(executablePath,args = []) 
     {
         this.childprocess = spawn(executablePath, args, { stdio: ['pipe', 'pipe', 'pipe'] });
-        //this.childprocess.stdout.on('data', (data) => {});
-
+        if (this.childprocess.pid) 
+        {
+            console.log('session ' + this.childprocess.pid + ' started');
+        }
+        else
+        {
+            console.log('could not start session');
+            return 'ERROR';
+        }
+        
         this.childprocess.stderr.on('data', (data) => 
         {
-            console.error(`Error: ${data.toString()}`);
+            console.error(`ERROR: ${data.toString()}`);
         });
 
         this.childprocess.on('exit', (code) => 
         {
-            console.log(`process exited with code ${code}`);
+            console.log('session ' + this.childprocess.pid + ` exited with code ${code}`);
         });
     }
 
@@ -66,7 +74,6 @@ export class PipeSession
                 });
             }
         }
-
         this.busy = true;
         this.task = new Promise((resolve, reject) => 
         {
@@ -99,22 +106,26 @@ export class PipeSession
                     reject(error);
                     advanceQueue(this);
                 }
-
-                if(timeout)
-                {
-                    this.timeout = setTimeout(() =>
-                    {
-                        this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
-                        resolve('Timed out');
-                    }, timeout);
-                }
             };
+
+
+            if(timeout)
+            {
+                this.timeout = setTimeout(() =>
+                {
+                    resolve(this.childprocess.pid + '_timed_out');
+                    this.childprocess.stdout.off('data', onDataHandler); // Remove o manipulador de eventos
+                    this.busy = false;
+                    console.log('WARNING: session ' + this.childprocess.pid + ' has timed out');
+                }, timeout);
+            }
+            
             this.childprocess.stdout.on('data', onDataHandler);
         });
         return this.task;
     }
 
-    call = async (data,timeout) =>
+    pass = async (data,timeout) =>
     {
         let splitted = data.split('\n');
         for(const i in splitted)

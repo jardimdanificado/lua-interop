@@ -4,3 +4,5 @@ luaside_log.txt
 *.exe
 *.appimage
 .vscode
+examples/cctest
+examples/lua_repl.lua
