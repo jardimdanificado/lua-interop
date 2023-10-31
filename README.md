@@ -14,26 +14,16 @@ To start a session, you can create an instance of `PipeSession`:
 const session = new PipeSession(execPath, args);
 ```
 
-- `execPath`: The path to the executable (default is 'luajit').
-- `args` : Arguments (default is 'init.lua').
+- `execPath`: The path to the executable.
+- `args` : Arguments.
 
 ### Sending Commands
 
-You can send commands to the process and receive the results using the `eval` method:
+You can send commands to the process and receive the results using the `send` method:
 
 ```javascript
-const result = await session.eval("your_code_here");
+const result = await session.send("your_code_here");
 ```
-
-### Sending Data
-
-You can use the `json`, `text`, and `log` wrappers to send data to the process:
-
-```javascript
-await session.json({ key: 'value' });
-await session.text("This is a message");
-await session.log("This is a log entry");
-``` 
 
 ### Closing the Session
 
@@ -48,14 +38,13 @@ session.close();
 Here's a simple example of how to use `potpiper` with lua:
 
 ```javascript
-import { PipeSession, fromlua } from 'potpiper';
+import { PipeSession } from 'potpiper';
 
 const lua = new PipeSession('luajit');
 
 (async () => {
-  const result = await lua.eval('return { message = "Hello from Lua!" }');
-  const jsResult = fromlua(result);
-  console.log(jsResult.message);
+  const result = await lua.send('print("this is a test")');
+  console.log(result);
   lua.close();
 })();
 ```

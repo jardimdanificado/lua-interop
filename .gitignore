@@ -3,3 +3,4 @@ examples/luaside_log.txt
 luaside_log.txt
 *.exe
 *.appimage
+.vscode
