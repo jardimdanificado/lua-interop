@@ -1,14 +1,18 @@
 {
     "name": "potpiper",
-    "version": "0.2.5",
-    "description": "promise based interoperability for nodejs, works with anything that supports stdin and stdout.",
+    "version": "0.2.51",
+    "description": "promise-based interoperability for nodejs, create a child_process and keep communicating until you want it to be closed, works with anything that supports stdin and stdout.",
     "main": "potpiper.mjs",
     "module": "potpiper.mjs",
     "keywords": 
     [
       "interoperability",
       "child_process",
-      "pipe"
+      "pipe",
+      "promise",
+      "spawn",
+      "stdin",
+      "stdout"
     ],
     "author": "jardimdanificado",
     "license": "LGPL-3.0-or-later",

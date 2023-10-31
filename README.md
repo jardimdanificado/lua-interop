@@ -1,6 +1,7 @@
 ## Usage
 
 You MUST print anything in the end of the called command, else it will freeze the process.
+The session automatically queues commands if it is busy when receiving it.
 
 ### Importing the Library
 
@@ -59,6 +60,12 @@ const lua = new PipeSession('luajit');
 ```
 
 Also check examples/
+
+## TODO
+
+- documentation.
+- more examples.
+- better code commenting.
 
 ## License
 

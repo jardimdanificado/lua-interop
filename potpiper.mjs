@@ -139,6 +139,8 @@ export class PipeSession
             splitted.splice(0,1);
         if(splitted[splitted.length-1] == '')
             splitted.splice(splitted.length-1,1);
+        splitted = splitted.filter(line => line.trim() !== '');
+        
         for(let i = 0; i < splitted.length-1; i++)
         {
             this.send(splitted[i],timeout);
